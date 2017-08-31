@@ -1,7 +1,7 @@
 import stop_words
 import json
 
-words_path = "palabras.txt"
+words_path = "palabrasBuzzfeed.txt"
 similarDic_path = "diccionarioSimilares.json"
 
 #Reads a txt all as a list, all in lowercase. Italso removes punctuations
