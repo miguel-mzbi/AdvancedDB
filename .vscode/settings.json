@@ -1,0 +1,14 @@
+{
+    "name": "Python",
+    "type": "python",
+    "request": "launch",
+    "stopOnEntry": true,
+    "program": "${file}",
+    //"python.pythonPath": "/usr/bin/python3.5",
+    "python.pythonPath": "C:/Users/osoaz/AppData/Local/Programs/Python/Python35/python.exe",
+    "debugOptions": [
+        "WaitOnAbnormalExit",
+        "WaitOnNormalExit",
+        "RedirectOutput"
+    ]
+}
