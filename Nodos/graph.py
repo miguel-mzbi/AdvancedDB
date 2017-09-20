@@ -110,7 +110,7 @@ if __name__ == "__main__":
     #print(graph.generateEdges())
     print("~~~~~~~~~~BFS~~~~~~~~~~")
     print("Start Node: 79119377085 ")
-    #graph.BFS('79119377085')
+    graph.BFS('79119377085')
     print("~~~~~~~~~~DFS~~~~~~~~~~")
     print("Start Node: 79119377085 ")
     graph.DFS('79119377085')
