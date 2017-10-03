@@ -1,48 +1,73 @@
 import csv
 import collections
 
+class Node(object):
+        def __init__(self, id):
+            self.id = id
+            self.pageRank = 0.0
+            self.adj = set()
+            self.adjInv = set()
+
+        def setC(self, c):
+            self.c = c
+
+        def addAdjacent(self, adjacent):
+            self.adj.add(adjacent)
+
+        def addAdjacentInv(self, adjacent):
+            self.adjInv.add(adjacent)
+
+        def __str__(self):
+            return str(self.id)
+
+        def __hash__(self):
+            return hash(self.id)
+
+        def __repr__(self):
+            return str(self)
+
 class Graph(object):
     
-    def __init__(self, graphDict = None):
-        if graphDict == None:
-            graphDict = {}
-        self.graphDict = graphDict
+    def __init__(self, nodesList = None):
+        self.nodes = nodesList
 
     def __init__(self, edgesPath = None):
-        if edgesPath == None:
-            graphDict = collections.defaultdict(set)
-        else:
-            graphDict = collections.defaultdict(set)
+        self.nodes = {}
+        if edgesPath != None:
             with open(edgesPath) as csvfile:
                 csvfile.readline()
                 readCSV = csv.reader(csvfile, delimiter=',')
                 for row in readCSV:
-                    graphDict[row[0]].add(row[1])
-
-        self.graphDict = graphDict
+                    n = row[0]
+                    self.addVertex(n)
+                    self.addEdge(n, row[1])
 
     def vertices(self):
-        return list(self.graphDict.keys())
+        return [self.nodes]
 
     def addVertex(self, vertex):
-        if vertex not in self.graphDict.keys():
-            self.graphDict[vertex] = []
+        if vertex not in self.nodes:
+            self.nodes[vertex] = Node(vertex)
 
     def edges(self):
         return list(self.generateEdges())
 
     def addEdge(self, origin, destination):
-        edge = set(edge)
-        (vertex1, vertex2) = tuple(edge)
-        if origin in self.graphDict.keys() and destination in self.graphDict.keys():
-            self.graphDict[origin].add(destination)
-        else:
-            self.graphDict[origin] = set([vertex2])
+        if origin not in self.nodes:
+            self.addVertex(origin)
+        if destination not in self.nodes:
+            self.addVertex(destination)
+
+        origin = self.nodes[origin]
+        origin.addAdjacent(destination)
+
+        destination = self.nodes[destination]
+        destination.addAdjacentInv(origin)
 
     def generateEdges(self):
         edges = []
-        for vertex in self.graphDict.keys():
-            for adjacent in self.graphDict[vertex]:
+        for vertex in self.nodes:
+            for adjacent in self.nodes[vertex].adj:
                 if {vertex, adjacent} not in edges:
                     edges.append({vertex, adjacent})
         return edges
@@ -56,7 +81,7 @@ class Graph(object):
             vertex = queue.pop(0)
             if vertex not in seen:
                 if countLvl > 0:
-                    count += len(self.graphDict[vertex] - seen)
+                    count += len(self.nodes[vertex].adj - seen)
                     countLvl -= 1
                     if vertex == start:
                         print("Level: " + str(level))
@@ -68,7 +93,7 @@ class Graph(object):
                     count = 0
                 print(vertex)
                 seen.add(vertex)
-                queue.extend(self.graphDict[vertex] - seen)
+                queue.extend(self.nodes[vertex].adj - seen)
         return seen
 
     def DFS(self, start):
@@ -87,15 +112,29 @@ class Graph(object):
                 print(vertex)
                 seen.add(vertex)
 
-                stack.extend(self.graphDict[vertex] - seen)
+                stack.extend(self.nodes[vertex].adj() - seen)
 
-                levels = [level+1] * len(self.graphDict[vertex] - seen)
+                levels = [level+1] * len(self.nodes[vertex].adj - seen)
                 lvlStack.extend(levels)
         return seen
 
+    def setPageRankAll(self, prob):
+        for node in self.nodes:
+            self.nodes[node].pageRank = self.auxPageRankAll(node, prob)
+            print("ID: " + str(node) + " - PR: " + str(self.nodes[node].pageRank))
+
+    def auxPageRankAll(self, vertex, prob):
+        toReturn = 1-prob
+        node = self.nodes[vertex]
+        accum = 0.0
+        for pointingAtThis in node.adjInv:
+            accum += pointingAtThis.pageRank / len(pointingAtThis.adj)
+        toReturn += prob*accum
+        return toReturn
+
     def __str__(self):
         res = "Vertices: "
-        for k in self.graphDict.keys():
+        for k in self.nodes.keys():
             res += str(k) + " "
         res += "\nEdges: "
         for edge in self.generateEdges():
@@ -108,10 +147,12 @@ if __name__ == "__main__":
     graph = Graph('Esa+Nasa EDGES.csv')
     #print(graph.vertices())
     #print(graph.generateEdges())
-    print("~~~~~~~~~~BFS~~~~~~~~~~")
-    print("Start Node: 79119377085 ")
-    graph.BFS('79119377085')
-    print("~~~~~~~~~~DFS~~~~~~~~~~")
-    print("Start Node: 79119377085 ")
-    graph.DFS('79119377085')
-
+    #print("~~~~~~~~~~BFS~~~~~~~~~~")
+    #print("Start Node: 79119377085 ")
+    #graph.BFS('79119377085')
+    #print("~~~~~~~~~~DFS~~~~~~~~~~")
+    #print("Start Node: 79119377085 ")
+    #graph.DFS('79119377085')
+    for i in range(2):
+        print("~~~~~~~~~~ Round " + str(i) + " ~~~~~~~~~~")    
+        graph.setPageRankAll(0.85)

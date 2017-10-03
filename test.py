@@ -1,2 +1,2 @@
-d = {"a":3, "B": 4}
-print(l for l in d)
+for i in range(2):
+    print(str(i))
